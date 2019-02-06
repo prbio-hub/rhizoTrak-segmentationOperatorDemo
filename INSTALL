@@ -1,0 +1,59 @@
+Setup instructions for this Maven project
+==========================================
+
+Maven in Eclipse
+-----------------
+
+You need to enable Maven support within Eclipse.
+To this end please ensure that you have the following add-ons installed:
+
+ m2e Maven support for Eclipse, you can install the plugin via "Help" -> "Install New Software..." 
+
+ Apt-Support for Maven (m2e-apt), for installation choose
+ "Window" -> "Preferences" -> "Maven" -> "Discovery" -> "Open Catalog" and search for "m2e";
+
+ after installing the add-on annotation processing for Maven needs to be enabled explicitly:
+ go to "Window" -> "Preferences" -> "Maven" -> "Annotation Processing" 
+ and select "Automatically configure JDT APT"
+
+
+Setting up the project
+-----------------------
+
+1. Extract the zip archive to a folder of your choice.
+
+2. Run Eclipse.
+   Select 'File' -> 'Import...' from the menubar.
+   The select 'Maven', subsequently 'Existing Maven Projects' and click 'Next'.
+
+   If you do not see a menu entry for Maven, not all of the plugins required are installed. 
+   To fix this please refer to subsection B.1.
+
+   In the next window use the "Browse..." button to select the directory to which you extracted the zip archive.
+   Please select the folder containing the 'pom.xml' file.
+   If anything is ok Eclipse will then let you select the MiToBo demo project.
+
+   Press the 'Finish' button.
+   
+   The project is then going to be imported into the workspace and will soon appear 
+   in the project explorer under the name 'mitobo-demo-project'. 
+
+   Attention! Do not delete the folder to which the zip archive was extracted until the Eclipse project is removed!
+   	      And if you delete the Eclipse project from your workspace make sure that the resources are not deleted,
+ 	      otherwise your files are lost.
+
+3. Your own class files should be placed in the source folder 'src/main/java' of the project. 
+   All operators located there and properly annotated will automatically be indexed and appear in the operator
+   runner's menu for operator selection.
+
+
+Using the new operator in rhizoTrak
+------------------------------------
+
+You need to package a jar file with your new operator.
+
+The easiest way is to run "mvn package" on command-line in the root directory of your project.
+
+Then copy the generated jar file to be found in the "targets" folder to the "jars" folder of
+your local Fiji installation and restart Fiji.
+When running rhizoTrak the operator should appear in its segmentation operator list.
