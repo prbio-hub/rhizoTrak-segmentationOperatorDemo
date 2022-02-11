@@ -50,11 +50,17 @@ package rhizoTrak.segmentation;
 import de.unihalle.informatik.Alida.exceptions.ALDOperatorException;
 import de.unihalle.informatik.Alida.exceptions.ALDProcessingDAGException;
 
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import de.unihalle.informatik.Alida.annotations.ALDDerivedClass;
-import de.unihalle.informatik.MiToBo.core.datatypes.images.*;
+import de.unihalle.informatik.MiToBo.core.datatypes.MTBTreeNode;
+import de.unihalle.informatik.MiToBo.core.datatypes.images.MTBImage;
+import ij.ImagePlus;
+import de.unihalle.informatik.MiToBo.apps.minirhizotron.datatypes.MTBRootTree;
+import de.unihalle.informatik.MiToBo.apps.minirhizotron.datatypes.MTBRootTreeNodeData;
 import de.unihalle.informatik.MiToBo.apps.minirhizotron.segmentation.*;
 
 /**
@@ -69,16 +75,10 @@ import de.unihalle.informatik.MiToBo.apps.minirhizotron.segmentation.*;
 
 @ALDDerivedClass
 public class RhizoTrakDummySegmentationDemo 
-	extends RootSegmentationOperator {
+extends RootImageSegmentationOperator {
 
 	/**
-	 * Input image.
-	 */
-	private MTBImage inImg = null;
-
-	/**
-	 * Default operator.
-	 * @throws ALDOperatorException		Thrown in case of failure.
+	 * @throws ALDOperatorException
 	 */
 	public RhizoTrakDummySegmentationDemo() throws ALDOperatorException {
 		super();
@@ -93,42 +93,88 @@ public class RhizoTrakDummySegmentationDemo
 	@Override
 	protected void operate() 
 			throws ALDOperatorException, ALDProcessingDAGException {
-		
-		// copy input image to local data structure
-		this.inImg = MTBImage.createMTBImage(this.image);
-		
-		// allocate result data structure
-		this.resultLineMap = new HashMap<Integer, Map<Integer, Node>>();
-		
-		// first treeline
-		HashMap<Integer, Node> fSeg = new HashMap<Integer, Node>();	
-		fSeg.put(new Integer(1), new Node(-1, this.inImg.getSizeX()/2.0-100,
-				this.inImg.getSizeY()/2.0));
-		fSeg.put(new Integer(2), new Node(1, this.inImg.getSizeX()/2.0+100,
-				this.inImg.getSizeY()/2.0));
-		fSeg.put(new Integer(3), new Node(2, this.inImg.getSizeX()/2.0+150,
-				this.inImg.getSizeY()/2.0+50));
-		fSeg.put(new Integer(4), new Node(2, this.inImg.getSizeX()/2.0+150,
-				this.inImg.getSizeY()/2.0-50));
-		// ... add treeline to result hash map
-		this.resultLineMap.put(new Integer(1), fSeg);
-		
-		// second treeline
-		fSeg = new HashMap<Integer, Node>();	
-		fSeg.put(new Integer(1), new Node(-1, this.inImg.getSizeX()/2.0-200,
-				this.inImg.getSizeY()/4.0));
-		fSeg.put(new Integer(2), new Node(1, this.inImg.getSizeX()/2.0-225,
-				this.inImg.getSizeY()/4.0+50));
-		fSeg.put(new Integer(3), new Node(2, this.inImg.getSizeX()/2.0-250,
-				this.inImg.getSizeY()/4.0+100));
-		fSeg.put(new Integer(4), new Node(3, this.inImg.getSizeX()/2.0-225,
-				this.inImg.getSizeY()/4.0+150));
-		// ... add treeline to result hash map
-		this.resultLineMap.put(new Integer(2), fSeg);
+
+		MTBTreeNode rnode;
+		MTBRootTree rTree;
+		MTBRootTreeNodeData nodeData;
+
+		// init result hash map, will in the end contain vectors of treelines
+		// indexed by the IDs of the target layers as hash values
+		this.resultTreelines = new HashMap<>();
+
+		// iterate over all layers for which images are provided
+		Set<Integer> layerIDs = this.inputImages.keySet();
+		for (Integer layerID : layerIDs) {
+			
+			// vector of resulting treelines for the current layer
+			Vector<MTBRootTree> rTreelines = new Vector<MTBRootTree>();
+
+			// get current image
+			ImagePlus imp = this.inputImages.get(layerID);
+
+			// ... as demo we will create a treeline in form of a cross in the center of the image
+			
+			// root node
+			int centerX = imp.getWidth()/2;
+			int centerY = imp.getHeight()/2;
+			nodeData = new MTBRootTreeNodeData(centerX, centerY);
+			rnode = new MTBTreeNode(nodeData);
+			rTree = new MTBRootTree(rnode);
+			
+			// top branch 
+			nodeData = new MTBRootTreeNodeData(centerX, centerY + imp.getHeight()/4);
+			rnode.addChild(new MTBTreeNode(nodeData));
+			// bottom branch 
+			nodeData = new MTBRootTreeNodeData(centerX, centerY - imp.getHeight()/4);
+			rnode.addChild(new MTBTreeNode(nodeData));
+			// left branch 
+			nodeData = new MTBRootTreeNodeData(centerX - imp.getWidth()/4, centerY);
+			rnode.addChild(new MTBTreeNode(nodeData));
+			// right branch 
+			nodeData = new MTBRootTreeNodeData(centerX + imp.getWidth()/4, centerY);
+			rnode.addChild(new MTBTreeNode(nodeData));
+			
+			// add new treeline to vector
+			rTreelines.add(rTree);
+			
+			// store vector of treelines to result object
+			this.resultTreelines.put(layerID, rTreelines);
+		}			
 	}
 
 	@Override
 	public String getUniqueClassIdentifier() {
 		return "DummySegmentationDemo";
+	}
+
+	@Override
+	public EnumSet<LayerSubset> getLayerSubsetForInputImages() {
+		EnumSet<LayerSubset> subset = EnumSet.of(LayerSubset.ALL);
+		return subset;
+	}
+
+	@Override
+	public EnumSet<LayerSubset> getLayerSubsetForInputTreelines() {
+		return EnumSet.noneOf(LayerSubset.class);
+	}
+
+	@Override
+	public boolean getOnlySelectedTreelines() {
+		return false;
+	}
+
+	@Override
+	public OpWorkingMode getOperatorWorkingMode() {
+		return OpWorkingMode.SEGMENTATION_CREATE;
+	}
+
+	@Override
+	public boolean isToTransferDiameterOnUpdate() {
+		return false;
+	}
+
+	@Override
+	public boolean isToTransferStatusOnUpdate() {
+		return false;
 	}
 }
