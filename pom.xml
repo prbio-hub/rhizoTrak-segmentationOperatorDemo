@@ -224,13 +224,13 @@
     <repository>
       <id>mitobo-snapshots</id>
       <name>Archiva Public MiToBo Snapshot Repository on 'moon'</name>
-      <url>https://moon.informatik.uni-halle.de/archiva/repository/snapshots-pub/</url>
+      <url>https://moon.informatik.uni-halle.de/repository/snapshots-pub/</url>
       <layout>default</layout>
     </repository>
     <repository>
       <id>mitobo-releases</id>
       <name>Archiva MiToBo Release Repository on 'moon'</name>
-      <url>https://moon.informatik.uni-halle.de/archiva/repository/releases/</url>
+      <url>https://moon.informatik.uni-halle.de/repository/releases/</url>
       <layout>default</layout>
     </repository>
   </repositories>
@@ -244,13 +244,13 @@
     <pluginRepository>
       <id>mitobo-snapshots</id>
       <name>Archiva Public MiToBo Snapshot Repository on 'moon'</name>
-      <url>https://moon.informatik.uni-halle.de/archiva/repository/snapshots-pub/</url>
+      <url>https://moon.informatik.uni-halle.de/repository/snapshots-pub/</url>
       <layout>default</layout>
     </pluginRepository>
     <pluginRepository>
       <id>mitobo-releases</id>
       <name>Archiva MiToBo Release Repository on 'moon'</name>
-      <url>https://moon.informatik.uni-halle.de/archiva/repository/releases/</url>
+      <url>https://moon.informatik.uni-halle.de/repository/releases/</url>
       <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>
